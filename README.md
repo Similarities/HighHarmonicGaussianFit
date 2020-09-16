@@ -7,8 +7,8 @@ over teh harmonic number, the evaluation must be done for each harmonic line. Ea
 certain px position in y-axis on the image, and each harmonic line usually as well contains of a spectral width (here called px_range in y). 
 The algorithm provides the following: 
 opens .tif 16 bit picture //
-background substracture (mean value of certain area over the spectral axis (y)) // test the px_range and fundamental frequency on the image (nm to px calculation) //
-summation of the signal over px_range // Gaussian fit function: used lftm.model//
+areal background removal (mean value of certain area over the spectral axis (y)) // test the px_range and fundamental frequency on the image (nm to px calculation) //
+summation of the signal over px_range // sets background to 0 for the line_out// applies Gaussian fit: used lftm.model// includes certain plots for controling the results.
 
 Python 3.6 
 
