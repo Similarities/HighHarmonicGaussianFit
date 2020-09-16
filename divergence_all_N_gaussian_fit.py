@@ -16,7 +16,7 @@ from lmfit.models import GaussianModel
 
 class GaussianFitHighHarmonicDivergence:
 
-    def __init__(self, filename, lambdaL, ROI_y, N_select, filedescription):
+    def __init__(self, filename, lambda_fundamental, pixel_range_y, harmonic_selected, file_description):
         self.filename = filename
         # px size full picture * usually 0 - 2048
         self.ymin = 0
@@ -25,13 +25,13 @@ class GaussianFitHighHarmonicDivergence:
         self.xmin = 0
         self.xmax = 2048
         # integration ROI y for each HHG line
-        self.ROI_y = ROI_y
+        self.ROI_y = pixel_range_y
 
         self.picture = np.empty([])
 
         self.x_backsubstracted = np.empty([2048, 2048])
 
-        self.lambdaL = lambdaL
+        self.lambdaL = lambda_fundamental
 
         # calibration of picture in x [full angle], is given with offset here (0 in the middle)
         self.full_divergence = 17.5
@@ -40,12 +40,12 @@ class GaussianFitHighHarmonicDivergence:
 
         self.lineout_y = np.zeros([2048, 1])
 
-        self.filedescription = filedescription
+        self.filedescription = file_description
 
         # defines first harmonic N in pixels, note: the quadratic calibration is not valid for N<10
         self.px_boarder = 0
 
-        self.N_select = N_select
+        self.N_select = harmonic_selected
         self.selected_N_in_px(self.N_select)
         self.N_temp = 0
 
