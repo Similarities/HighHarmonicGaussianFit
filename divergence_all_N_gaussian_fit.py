@@ -31,7 +31,7 @@ class GaussianFitHighHarmonicDivergence:
         self.lambda_fundamental = lambda_fundamental
         # calibration of picture in x [full angle], is given with offset here (0 in the middle)
         self.full_divergence = 17.5
-        self.maximum_harmonic = 26
+        self.maximum_harmonic = 33
         self.lineout_x = self.create_x_axis_in_mrad()
         self.lineout_y = np.zeros([2048, 1])
         self.filedescription = file_description
@@ -45,8 +45,8 @@ class GaussianFitHighHarmonicDivergence:
         self.gaussian_result = np.zeros([self.maximum_harmonic, 5])
 
     def create_x_axis_in_mrad(self):
-        C = self.full_divergence / self.xmax
-        return np.arange(self.xmin, self.xmax) * C - self.full_divergence / 2
+        c = self.full_divergence / self.xmax
+        return np.arange(self.xmin, self.xmax) * c - self.full_divergence / 2
 
     def open_file(self):
         self.picture = plt.imread(self.filename)
@@ -59,15 +59,13 @@ class GaussianFitHighHarmonicDivergence:
         plt.figure(1)
         plt.xlabel('[px]')
         plt.ylabel('[px]')
-        plt.imshow(self.picture_background)
-        plt.legend()
+        plt.imshow(self.picture_background, label=self.filedescription)
         return self.picture_background
 
     def selected_harmonic_in_px(self, N):
         harmonic_in_nm = self.lambda_fundamental / self.harmonic_selected
         # this function should be inverse of the grating function
         self.px_boarder = (4.71439193e-01 * harmonic_in_nm ** 2 - 1.06651902e+02 * harmonic_in_nm + 4.29603367e+03)
-        print(self.px_boarder, "selected N in px")
         return self.px_boarder
 
     def delta_energy(self):
@@ -98,32 +96,26 @@ class GaussianFitHighHarmonicDivergence:
 
     def sum_over_pixel_range(self):
         self.lineout_y = np.sum(self.create_sub_array_px_range(), axis=0)
-        self.plot_x_y(self.lineout_x, self.lineout_y, 'raw', ' ', '', 4)
         return self.lineout_y
 
     def set_to_zero_offest(self):
-        print(np.amin(self.lineout_y), 'minimum')
-        self.lineout_y[::] = self.lineout_y[::] - np.amin(self.lineout_y[0:2000])
-        print(self.lineout_y[500:550])
-        self.plot_x_y(self.lineout_x, self.lineout_y, 'sub', ' ', ' ', 4)
+        self.lineout_y[::] = self.lineout_y[::] - np.amin(self.lineout_y)
         return self.lineout_y
 
     def fit_gaussian(self):
         self.sum_over_pixel_range()
-        #self.set_to_zero_offest()
-        self.plot_x_y(self.lineout_x, self.lineout_y, str(self.harmonic_selected), ' ', ' ', 2)
+        self.set_to_zero_offest()
         mod = GaussianModel()
-        # print(self.lineout_y, self.lineout_x)
         pars = mod.guess(self.lineout_y, x=self.lineout_x)
         out = mod.fit(self.lineout_y, pars, x=self.lineout_x)
-        print(out.fit_report(min_correl=0.15))
+        #print(out.fit_report(min_correl=0.15))
         self.sigma_temp = out.params['sigma'].value
         self.amplitude_temp = out.params['amplitude'].value
         self.center_temp = out.params['center'].value
-        print('sigma: {0} for N:{1} = {2:8.2f}nm'
-              .format(self.sigma_temp, self.harmonic_selected, self.lambda_fundamental / self.harmonic_selected))
+        #print('sigma: {0} for N:{1} = {2:8.2f}nm'
+        #    .format(self.sigma_temp, self.harmonic_selected, self.lambda_fundamental / self.harmonic_selected))
+        self.plot_x_y(self.lineout_x, self.lineout_y, str(self.harmonic_selected), ' ', ' ', 2)
         self.plot_fit_function()
-
         return self.sigma_temp, self.amplitude_temp, self.center_temp
 
     def plot_x_y(self, x, y, name, x_label, y_label, plot_number):
@@ -146,8 +138,8 @@ class GaussianFitHighHarmonicDivergence:
         for x in range(0, len(xx)):
             yy[x] = (self.amplitude_temp / (self.sigma_temp * ((2 * math.pi) ** 0.5))) * math.exp(
                 (-(xx[x] - self.center_temp) ** 2) / (2 * self.sigma_temp ** 2))
-        self.plot_x_y(self.lineout_x, self.lineout_y, self.filedescription, 'mrad', 'counts', 2)
-        self.plot_x_y(xx, yy, 'fit_function', 'mrad', 'counts', 2)
+        self.plot_x_y(self.lineout_x, self.lineout_y, str(self.harmonic_selected), 'mrad', 'counts', 2)
+        self.plot_x_y(xx, yy, 'fit_'+str(self.harmonic_selected), 'mrad', 'counts', 2)
 
     def batch_over_N(self):
         for x in range(self.harmonic_selected, self.maximum_harmonic):
@@ -164,32 +156,27 @@ class GaussianFitHighHarmonicDivergence:
         self.gaussian_result = np.delete(self.gaussian_result, np.where(~self.gaussian_result.any(axis=1))[0], axis=0)
         self.plot_scatter(self.gaussian_result[::, 0], self.gaussian_result[::, 1], self.filedescription,
                           'harmonic number N', 'divergence in mrad', 3)
-        self.save_data()
         return self.gaussian_result
 
     def prepare_header(self):
         # insert header line and change index
-        #header_names = (['harmonic number'], ['mrad'], ['integrated counts in delta E'] ,['harmonic in nm'] ,['delta E/E'],)
-        print(header_names)
-        print(self.gaussian_result)
-        #print(len(header_names), len(self.gaussian_result))
-        self.gaussian_result = np.concatenate((header_names, self.gaussian_result), axis=0)
-        print(self.gaussian_result)
+        header_names = (['harmonic number', 'mrad', 'integrated counts in delta E' ,'harmonic in nm' ,'delta E/E'])
+        return np.vstack((header_names, self.gaussian_result))
+
 
     def save_data(self):
-        np.savetxt(self.filedescription + "_div_gaussian" + ".txt", self.gaussian_result, delimiter=' ', fmt='%1.4e')
+        result = self.prepare_header()
+        np.savetxt(self.filedescription + "_div_gaussian" + ".txt", result, delimiter=' ', header='string', comments='', fmt='%s')
 
 
-# insert the following ('filepath/picture_name.tif', fundamental frequency (float), ROI_y(px), harmonic number (int), "picture name for plot")
+# insert the following ('filepath/picture_name.tif', fundamental frequency (float), pixel_range_y (delta energy), harmonic number (int), "picture name for plot")
 
-Picture1 = GaussianFitHighHarmonicDivergence('rotated/spectro1__Wed Jan 23 2019_16.01.29_36.tif', 800., 30, 20,
+Picture1 = GaussianFitHighHarmonicDivergence('rotated/spectro1__Wed Jan 23 2019_16.01.29_36.tif', 801., 30, 16,
                                              "20190123_16")
 Picture1.open_file()
 Picture1.background()
-
-
-
 Picture1.batch_over_N()
+Picture1.save_data()
 plt.show()
 
 # Picture1.save_data()
