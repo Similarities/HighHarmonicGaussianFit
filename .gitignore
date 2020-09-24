@@ -108,4 +108,5 @@ venv.bak/
 /rotated
 /rotated_20190130_1
 /rotated_20180123
+*.txt
 
