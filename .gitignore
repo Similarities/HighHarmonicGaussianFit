@@ -106,4 +106,6 @@ venv.bak/
 *.png
 *.tif
 /rotated
+/rotated_20190130_1
+/rotated_20180123
 
