@@ -21,8 +21,8 @@ class GaussianFitHighHarmonicDivergence:
         self.ymin = 0
         self.ymax = 2048
         # define Roi in x to avoid boarder effects
-        self.xmin = 180
-        self.xmax = 970
+        self.xmin = 100
+        self.xmax = 1000
         # integration ROI y for each HHG line
         self.pixel_range_y = pixel_range_y
         self.picture = np.empty([])
@@ -30,7 +30,7 @@ class GaussianFitHighHarmonicDivergence:
         self.lambda_fundamental = lambda_fundamental
         # calibration of picture in x [full angle], is given with offset here (0 in the middle)
         self.full_divergence = 17.5
-        self.maximum_harmonic = 42
+        self.maximum_harmonic = 39
         self.harmonic_selected = harmonic_selected
         self.lineout_x = self.create_x_axis_in_mrad()
         self.lineout_y = np.zeros([2048, 1])
@@ -51,7 +51,7 @@ class GaussianFitHighHarmonicDivergence:
         return self.picture
 
     def background(self):
-        back_mean = np.mean(self.picture[:, 1000:1200], axis=1)
+        back_mean = np.mean(self.picture[:, 1500:1600], axis=1)
         for x in range(0, 2048):
             self.picture_background[::, x] = self.picture[::, x] - back_mean[x]
         plt.figure(1)
@@ -65,10 +65,11 @@ class GaussianFitHighHarmonicDivergence:
         self.px_boarder = int(7.79104482e-01 * energy_nm ** 2 - 1.24499534e+02 * energy_nm + 3.38549944e+03)
         return self.px_boarder
 
+
     def energy_range(self):
         print(self.harmonic_selected)
-        previous_harmonic = self.lambda_fundamental / (self.harmonic_selected - 0.15)
-        next_harmonic = self.lambda_fundamental / (self.harmonic_selected + 0.15)
+        previous_harmonic = self.lambda_fundamental / (self.harmonic_selected - 0.5)
+        next_harmonic = self.lambda_fundamental / (self.harmonic_selected + 0.5)
         print(previous_harmonic, next_harmonic)
         self.border_up = np.int(self.nm_in_px(previous_harmonic))
         self.border_down = np.int(self.nm_in_px(next_harmonic))
@@ -169,8 +170,8 @@ class GaussianFitHighHarmonicDivergence:
             self.border_up, self.border_down = self.energy_range()
             plt.figure(1)
             plt.hlines(self.nm_in_px(self.lambda_fundamental/self.harmonic_selected), xmin= 0, xmax = 2048, linewidth=0.5, alpha = 0.1)
+
             self.fit_gaussian()
-            # self.plot_fit_function()
             self.gaussian_result[x, 1] = self.sigma_temp
             self.gaussian_result[x, 2] = np.sum(self.lineout_y[::])
             self.gaussian_result[x, 4], self.gaussian_result[x, 3] = self.delta_energy()
@@ -186,7 +187,7 @@ class GaussianFitHighHarmonicDivergence:
         # insert header line and change index
         header_names = (['harmonic number', 'mrad', 'integrated counts in delta E', 'harmonic in nm', 'delta E/E'])
         parameter_info = (
-        ['fundamental_nm:', str(self.lambda_fundamental), 'pixel_range:', str(self.pixel_range_y), 'pixel_rangex'+str(self.xmin)+':'+str(self.xmax)])
+        ['fundamental_nm:', str(self.lambda_fundamental), 'pixel_range:', str(self.pixel_range_y), 'px_range_x'+str(self.xmax-self.xmin)])
         return np.vstack((header_names, self.gaussian_result, parameter_info))
 
     def save_data(self):
@@ -199,7 +200,7 @@ class GaussianFitHighHarmonicDivergence:
 
 # insert the following ('filepath/picture_name.tif', fundamental frequency (float), pixel_range_y (delta energy), harmonic number (int), "picture name for plot")
 
-Picture1 = GaussianFitHighHarmonicDivergence('rotated_20190130_1/spectro1__Wed Jan 30 2019_12.01.54_32.tif', 799., 15,
+Picture1 = GaussianFitHighHarmonicDivergence('rotated_20190129/spectro1__Tue Jan 29 2019_16.37.45_40.tif', 800., 21,
                                              24,
                                              "20190123_16")
 Picture1.open_file()
