@@ -8,10 +8,11 @@ certain px position in y-axis on the image, and each harmonic line usually as we
 The algorithm provides the following: 
 
 - opens .tif 16 bit pictures in a batch file
-- areal background removal (mean value of certain area over the spectral axis (y)) // test the px_range and fundamental frequency on the image (nm to px calculation)
+- areal background removal (mean value of certain area over the spectral axis (y))
 - sum of the signal over px_range in x (ROI)
 - sets background to 0 for the line_out
 - additional x-depending substraction can be taken
+- spectral calibration px to nm (wavelenght) - and vice versa (for nonlinear ROI of integration needed)
 - sum of spectral 1/(i+/- something) (i harmonic number N, something < 1) in spectral range over certain number of i
 - applies Gaussian fit: used lftm.model - delivering sigma which correspond to the beamwaist (w(z)) for gaussian beams 
 for details read wiki about gaussian beams.
