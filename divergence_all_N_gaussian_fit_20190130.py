@@ -215,7 +215,7 @@ def get_file_list(path_picture):
 
 
 def process_files(my_files, path):
-    for x in range(4, 5):
+    for x in range(22, 23):
         file = path + '/' + my_files[x]
         ProcessImage = GaussianFitHighHarmonicDivergence(file, 798,
                                                          24,
