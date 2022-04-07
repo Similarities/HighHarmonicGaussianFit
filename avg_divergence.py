@@ -72,32 +72,32 @@ fig, ax = plt.subplots()
 
 array_all, array_x = batch_files(files_1600, directory)
 mean_array, std_array = mean_std(array_all)
-ax.axes.errorbar(array_x,  mean_array, yerr=std_array, xerr=None,fmt='o', label = '1600 um')
+ax.axes.errorbar(array_x,  mean_array, yerr=std_array, xerr=None,fmt='o', label = '1600 um', color='tab:blue')
 
 
 directory = "z2000/"
 files_2000 = get_file_list(directory)
 array_all, array_x = batch_files(files_2000, directory)
 mean_array, std_array = mean_std(array_all)
-ax.axes.errorbar(array_x,  mean_array, yerr=std_array, xerr=None,fmt='s', label = '2000 um')
+ax.axes.errorbar(array_x,  mean_array, yerr=std_array, xerr=None,fmt='s', label = '2000 um', color = 'tab:purple')
 
 directory = "z2800/"
 files_2800 = get_file_list(directory)
 array_all, array_x = batch_files(files_2800, directory)
 mean_array, std_array = mean_std(array_all)
-ax.axes.errorbar(array_x,  mean_array, yerr=std_array, xerr=None,fmt='v', label = '2800 um')
+ax.axes.errorbar(array_x,  mean_array, yerr=std_array, xerr=None,fmt='*', label = '2800 um',  color = 'tab:pink')
 
 directory = "z3200/"
 files_3200 = get_file_list(directory)
 array_all, array_x = batch_files(files_3200, directory)
 mean_array, std_array = mean_std(array_all)
-ax.axes.errorbar(array_x,  mean_array, yerr=std_array, xerr=None, fmt='.', label = '3200 um')
+ax.axes.errorbar(array_x,  mean_array, yerr=std_array, xerr=None, fmt='P', label = '3200 um', color = 'tab:red')
 
 directory = "z3600/"
 files_3600 = get_file_list(directory)
 array_all, array_x = batch_files(files_3600, directory)
 mean_array, std_array = mean_std(array_all)
-ax.axes.errorbar(array_x,  mean_array, yerr=std_array, xerr=None, fmt='x',label = '3600 um')
+ax.axes.errorbar(array_x,  mean_array, yerr=std_array, xerr=None, fmt='v',label = '3600 um', color = 'tab:orange')
 
 
 def diffraction_limit():
@@ -115,15 +115,15 @@ array_x, diffraction_limit = diffraction_limit()
 ax.axes.scatter(array_x,  diffraction_limit, label = 'ThetaL/N', alpha = 0.5)
 
 #plt.legend()
-ax.axes.set_xlabel('harmonic number /N')
-ax.axes.set_ylabel('w0(z,N) divergence /mrad')
+ax.axes.set_xlabel('harmonic number [N]')
+ax.axes.set_ylabel('w0(z,N) divergence [mrad]')
 ax.axes.set_yscale('log')
 #plt.axes.axes.set_yscale(1E-3)
-ax.axes.set_xlim(16.5,27)
-ax.axes.set_ylim(1,6)
-minors = np.linspace(0, 6, 11)[1:-1]
+ax.axes.set_xlim(16.5,28)
+ax.axes.set_ylim(1,11)
+minors = np.linspace(1, 10, 10)[1:-1]
 ax.yaxis.set_minor_locator(ticker.FixedLocator(minors))
 ax.axes.legend()
 
-plt.savefig("div_over_N_best_shots" + ".png", bbox_inches="tight", dpi=1000)
+plt.savefig("div_over_N_best_shots_avg_70" + ".png", bbox_inches="tight", dpi=1000)
 plt.show()
